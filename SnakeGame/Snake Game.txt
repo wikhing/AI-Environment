@@ -1,0 +1,12 @@
+Snake Game
+1. grid
+2. score/number of apples eaten
+3. living/dead - 1/0
+
+grid - 2d array:
+	empty = 0
+	snake body = 1
+	snake head = 2
+	apple = 3
+
+realtime store data 在一个json file
