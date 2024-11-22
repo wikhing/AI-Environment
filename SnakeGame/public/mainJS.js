@@ -96,7 +96,7 @@
 
                 for(var i = index + 1; i < snake.cells.length; i++){
                     
-                    if(cell.x === snake.cells[i].x && cell.y === snake.cells[i].y || snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height) {
+                    if(cell.x === snake.cells[i].x && cell.y === snake.cells[i].y || snake.x < 0 || snake.x >= canvas.width || snake.y <= 0 || snake.y >= canvas.height - grid) {
                         snake.x = 160;
                         snake.y = 160;
                         snake.cells = [];
