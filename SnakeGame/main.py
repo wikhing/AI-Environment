@@ -1,9 +1,9 @@
-import gymnasium as gym
 import numpy as np
 import torch.nn as nn
 import torch
 import random
-from env import Env
+
+
 
 class PolicyNet(nn.Module):
     def __init__(self):
