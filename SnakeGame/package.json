@@ -13,7 +13,6 @@
     "express": "^4.21.1",
     "nodeexpress": "file:"
   },
-  "devDependencies": {},
   "keywords": [],
   "description": ""
 }

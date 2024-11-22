@@ -128,7 +128,7 @@
             grids[snake.y / 16][snake.x / 16] = 2;
 
             updateTable(grids);
-            saveToFile(grids);
+            saveToFile(grids, snake.maxCells - 4, snake.state);
         }
 
         function updateTable(grids){
@@ -142,14 +142,20 @@
             return;
         }
 
-        function saveToFile(grids) {
+        function saveToFile(grids, score, state) {
             let json = grids.map((row, y) => row.map((col, x) => ({
                 x: x,
                 y: y,
                 value: col
             })));
 
-            const jsonContent = JSON.stringify(json, null, 2);
+            const fullJson = {
+                Arrays: json,
+                Score: score,
+                State: state
+            }
+
+            const jsonContent = JSON.stringify(fullJson, null, 2);
 
             fetch('http://localhost:3000/save', {
                 method: 'POST',
