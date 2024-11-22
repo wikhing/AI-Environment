@@ -4,17 +4,17 @@
         var context = canvas.getContext('2d');
 
         
-        for(let i = 0; i < 25; i++){
-            var a = document.createElement("a");
-            for(let j = 0; j < 25; j++){
-                var label = document.createElement("label");
-                label.id = i + '@' + j;
-                label.textContent = "0 ";
-                label.style.color = "white";
-                a.appendChild(label);
-            }
-            table.appendChild(a);
-        }
+        // for(let i = 0; i < 25; i++){
+        //     var a = document.createElement("a");
+        //     for(let j = 0; j < 25; j++){
+        //         var label = document.createElement("label");
+        //         label.id = i + '@' + j;
+        //         label.textContent = "0 ";
+        //         label.style.color = "white";
+        //         a.appendChild(label);
+        //     }
+        //     table.appendChild(a);
+        // }
         
         var row = new Array(25);
         var grids = new Array(25);
@@ -52,6 +52,7 @@
 
             requestAnimationFrame(loop);
             
+            //Change snake speed here, the higher the value the slower the snake
             if(++speed < 8){
                 return;
             }
@@ -127,20 +128,20 @@
             });
             grids[snake.y / 16][snake.x / 16] = 2;
 
-            updateTable(grids);
+            // updateTable(grids);
             saveToFile(grids, snake.maxCells - 4, snake.state);
         }
 
-        function updateTable(grids){
-            for(let i = 0; i < 25; i++){
-                for(let j = 0; j < 25; j++){
-                    var label = document.getElementById(i+'@'+j);
+        // function updateTable(grids){
+        //     for(let i = 0; i < 25; i++){
+        //         for(let j = 0; j < 25; j++){
+        //             var label = document.getElementById(i+'@'+j);
                     
-                    label.innerText = grids[i][j] + " ";
-                }
-            }
-            return;
-        }
+        //             label.innerText = grids[i][j] + " ";
+        //         }
+        //     }
+        //     return;
+        // }
 
         function saveToFile(grids, score, state) {
             let json = grids.map((row, y) => row.map((col, x) => ({
