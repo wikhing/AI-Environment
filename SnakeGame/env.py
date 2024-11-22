@@ -32,7 +32,7 @@ class Env:
             for x in range(25):
                 obs[y][x] = self.data['Arrays'][y][x]['value']
 
-        return obs
+        return obs.flatten()
 
 
     def get_rew(self):
