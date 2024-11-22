@@ -1,0 +1,53 @@
+<!-- Original Author: https://gist.github.com/straker/ff00b4b49669ad3dec890306d348adc4 -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        html, body{
+            height: 100%;
+            margin: 0;
+        }
+        body{
+            background-color: black;
+            display:flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        div label{
+            color: whitesmoke;
+            font-weight: 1000;
+            font-family:cursive;
+        }
+        div{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas{
+            border: 1px solid whitesmoke;
+        }
+        p label{
+            color: whitesmoke;
+        }
+        p{
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <label>Snake Game</label>
+        <label id="score">Score: 0</label>
+    </div>
+    <canvas id="game" width="400" height="400"></canvas>
+    <p id="table"></p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="mainJS.js"></script>
+</body>
+</html>
