@@ -134,21 +134,19 @@
         }
 
         function saveToFile(grids){
-            const fs = require('fs');
-            // const path = require('path');
-            
             let keys = grids.shift();
             let json = grids.map(row => Object.assign({}, ...row.map((col) => ({ col }))));
 
             const jsonContent = JSON.stringify(json);
-            // const filePath = path.join(process.cwd(), 'snake_data.json')
 
             console.log(jsonContent);
-            fs.writeFile('snake_data.json', jsonContent, 'utf8', function (err) {
-                if (err) {
-                    return console.log(err);
-                }
-            });
+            const blob = new Blob([jsonContent], {type: "application/json"});
+            saveAs(blob, "snake_data.json");
+            // fs.writeFile('snake_data.json', jsonContent, 'utf8', function (err) {
+            //     if (err) {
+            //         return console.log(err);
+            //     }
+            // });
         }
         
         document.addEventListener('keydown', function(e) {
