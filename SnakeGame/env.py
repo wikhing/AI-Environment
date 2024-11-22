@@ -21,7 +21,7 @@ class Env:
             break
 
     def get_done(self):
-        return self.data['State']
+        return 1 - self.data['State']
 
     def get_obs(self):
 
@@ -47,14 +47,18 @@ class Env:
         return self.get_obs()
 
     def step(self, action):
-        pass
+        if action == 0:
+            keyboard.press_and_release('up')
+        if action == 1:
+            keyboard.press_and_release('down')
+        if action == 2:
+            keyboard.press_and_release('left')
+        if action == 3:
+            keyboard.press_and_release('right')
+        
+        obs = self.get_obs()
+        rew = self.get_rew()
+        done = self.get_done()
 
+        return obs, rew, done
 
-
-env = Env()
-while True:
-    obs = env.get_obs()
-    rew = env.get_rew()
-
-    print(env.get_done())
-  
