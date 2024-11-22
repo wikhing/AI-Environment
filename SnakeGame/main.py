@@ -2,38 +2,25 @@ import numpy as np
 import torch.nn as nn
 import torch
 import random
-
+import torch.nn.functional as F
+from env import Env
+import time
 
 
 class PolicyNet(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(4, 16, kernel_size=3)
-        self.conv2 = nn.Conv2d(16, 1, kernel_size=3)
+        self.fc1 = nn.Linear(25 * 25, 256)
+        self.fc2 = nn.Linear(256, 256)
+        self.fc3 = nn.Linear(256, 4)
 
-        self.max_pool = nn.MaxPool2d(2, 2)
-
-        self.fc1 = nn.Linear(15 * 28, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, 2)
-
-        self.tanh  = nn.Tanh() 
-        self.relu = nn.ReLU()       
-        self.softmax = nn.Softmax(dim=-1)
-
+       
     def forward(self, x):
-        out = self.relu(self.max_pool(self.conv1(x)))
-        out = self.relu(self.max_pool(self.conv2(out)))
         
-        if (out.ndim == 3):
-            out = out.flatten()
-        else:
-            out = out.reshape(-1, 15 * 28)
-
-        out = self.tanh(self.fc1(out))
-        out = self.tanh(self.fc2(out))
-        out = self.softmax(self.fc3(out))
+        out = F.tanh(self.fc1(x))
+        out = F.tanh(self.fc2(out))
+        out = F.softmax(self.fc3(out), dim=-1)
       
         return out
     
@@ -47,31 +34,17 @@ class PolicyNet(nn.Module):
 
 class ValueNet(nn.Module):
     def __init__(self):
-        super().__init__()
+        super().__init__()                   
 
-        self.conv1 = nn.Conv2d(4, 16, kernel_size=3)
-        self.conv2 = nn.Conv2d(16, 1, kernel_size=3)   
-
-        self.max_pool = nn.MaxPool2d(2, 2)                           
-
-        self.fc1 = nn.Linear(15 * 28, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, 1)
+        self.fc1 = nn.Linear(25 * 25, 256)
+        self.fc2 = nn.Linear(256, 256)
+        self.fc3 = nn.Linear(256, 1)
  
-        self.leaky_relu = nn.LeakyReLU()
-        self.relu = nn.ReLU() 
 
     def forward(self, x):
-        out = self.relu(self.max_pool(self.conv1(x)))
-        out = self.relu(self.max_pool(self.conv2(out)))
-        
-        if (out.ndim == 3):
-            out = out.flatten()
-        else:
-            out = out.reshape(-1, 15 * 28)
 
-        out = self.leaky_relu(self.fc1(out))
-        out = self.leaky_relu(self.fc2(out))
+        out = F.relu(self.fc1(x))
+        out = F.relu(self.fc2(out))
         out = self.fc3(out)
         return out
 
@@ -138,13 +111,13 @@ class Memory:
 
 
 class PPO:
-    def __init__(self, gamma=0.99, lamda=0.95, epsilon=0.2, epoch=10, learning_rate=3e-4, batch_size=64, ent_coef=0.01):
+    def __init__(self, gamma=0.99, gae_lambda=0.95, epsilon=0.2, epoch=10, learning_rate=3e-4, batch_size=64, ent_coef=0.00):
         self.policy_net = PolicyNet()
         self.value_net = ValueNet()
         self.memory = Memory()
 
         self.gamma = gamma
-        self.lamda = lamda
+        self.gae_lambda = gae_lambda
         self.epsilon = epsilon
 
         self.epoch = epoch
@@ -179,7 +152,7 @@ class PPO:
                 if self.memory.done_traj[j] != 1:
                     delta += self.gamma * self.memory.values_traj[j + 1]
                 
-                advantage += delta * ((self.gamma * self.lamda) ** (j - i))
+                advantage += delta * ((self.gamma * self.gae_lambda) ** (j - i))
 
                 if self.memory.done_traj[j] == 1:
                      break
@@ -196,15 +169,11 @@ class PPO:
         self.calc_advantage()
         self.memory.shuffle_mem()
 
-        # action, old_log_prob, disc_ret, adv are in 1d shape
-        # obs in 2d shape (traj_size, obs_size)
         obs, actions, old_log_prob, advantage = self.memory.get_mem()
         
         ret = advantage + torch.tensor(self.memory.values_traj).to(device)
         
                                                                            
-                                                        
-
         for epoch in range(self.epoch):
 
             for i in range(int(len(actions) / self.batch_size)):
@@ -240,13 +209,11 @@ class PPO:
 
 
 def main():
-
-    
-
     env = Env()
-    agent = PPO(ent_coef=0) # if is_cont is unspecified/False, need to put in the action_dim
+    agent = PPO() 
     
     try :
+        print('loading agent...')
         agent.policy_net.load_state_dict (torch.load("policy.pth"))
         agent.value_net.load_state_dict(torch.load("value.pth"))
     except Exception as e:
@@ -258,15 +225,21 @@ def main():
     total_tp = 0 
     num_of_updates = 0
 
+    print('training starting in...')
+    for i in range(5):
+        print(5 - i)
+        time.sleep(1)
+
     while True:                                          
         ep += 1
         total_rew = 0
         obs = env.reset() # obs in numpy
+        time.sleep(0.5)
 
         while True:
             action, log_prob, value, _ = agent.pred(torch.from_numpy(obs))
             new_obs, rew, done = env.step(action.item())
-
+            time.sleep(0.1)
             # have to store either in pytorch tensor, or python data type format, no numpy
             # the obs and new_obs is in tensor, example : torch.tensor([1, 2 ,3]), stored in a python array
             # the tensors are then stacked up together
@@ -298,7 +271,7 @@ def main():
 
 
        
-device = 'cuda'                                                
+device = 'cuda' if torch.cuda.is_available() else 'cpu'                                               
 
 if __name__ == "__main__":
     main()                                                                                                  
