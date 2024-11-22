@@ -36,9 +36,13 @@ class Env:
 
 
     def get_rew(self):
-        rew = 0
+
+        if self.get_done():
+            return -5
+
+        rew = 0.01
         if self.data['Score'] > self.prev_score:
-            rew = 1    
+            rew = 5    
         self.prev_score = self.data['Score']
         return rew
 
