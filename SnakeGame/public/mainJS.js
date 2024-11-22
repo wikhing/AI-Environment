@@ -31,7 +31,9 @@
 
             cells:[],
 
-            maxCells: 4
+            maxCells: 4,
+
+            state: 0,
         };
 
         var apple = {
@@ -44,12 +46,16 @@
         }
 
         function loop(){
+            if(snake.state === 0){
+                return;
+            }
+
             requestAnimationFrame(loop);
             
             if(++speed < 8){
                 return;
             }
-
+            
             speed = 0;
             context.clearRect(0, 0, canvas.width, canvas.height);
             row.fill(0);
@@ -98,6 +104,9 @@
                         snake.dx = grid;
                         snake.dy = 0;
 
+                        snake.state = 0;
+                        speed = 0;
+
                         score.innerText = "Score: 0";
 
                         grids[apple.y / 16][apple.x / 16] = 0;
@@ -134,7 +143,6 @@
         }
 
         function saveToFile(grids) {
-            let keys = grids.shift();
             let json = grids.map((row, y) => row.map((col, x) => ({
                 x: x,
                 y: y,
@@ -178,4 +186,9 @@
             }
         });
 
-        requestAnimationFrame(loop);
+        document.addEventListener('keypress', function(e) {
+            if(e.which === 32){
+                snake.state = 1;
+                requestAnimationFrame(loop);
+            }
+        });
