@@ -16,6 +16,7 @@
         //     table.appendChild(a);
         // }
         
+
         var row = new Array(25);
         var grids = new Array(25);
 
@@ -63,7 +64,6 @@
             for(let i = 0; i < 25; i++){
                 grids[i] = row.slice();
             }
-            
 
             snake.x += snake.dx;
             snake.y += snake.dy;
@@ -76,12 +76,12 @@
             }
 
             context.fillStyle = 'red';
-            context.fillRect(apple.x, apple.y, grid-1, grid-1);
+            context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
             grids[apple.y / 16][apple.x / 16] = 3;
 
             context.fillStyle = 'green';
             snake.cells.forEach(function(cell, index) {
-                context.fillRect(cell.x, cell.y, grid-1, grid-1);
+                context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
 
                 if(cell.x === apple.x && cell.y === apple.y){
                     snake.maxCells++;
@@ -97,16 +97,18 @@
 
                 for(var i = index + 1; i < snake.cells.length; i++){
                     
-                    if(cell.x === snake.cells[i].x && cell.y === snake.cells[i].y || snake.x < 0 || snake.x >= canvas.width || snake.y <= 0 || snake.y >= canvas.height - grid) {
+                    if(cell.x === snake.cells[i].x && cell.y === snake.cells[i].y || (snake.x < 0 || snake.x >= canvas.width) || (snake.y < 0 || snake.y >= canvas.width)) {
+                        snake.state = 0;
+
+                        // updateTable(grids);
+                        saveToFile(grids, snake.maxCells - 4, snake.state);
+
                         snake.x = 160;
                         snake.y = 160;
                         snake.cells = [];
                         snake.maxCells = 4;
                         snake.dx = grid;
                         snake.dy = 0;
-
-                        snake.state = 0;
-                        speed = 0;
 
                         score.innerText = "Score: 0";
 
@@ -115,6 +117,7 @@
                         apple.x = getRandomInt(0, 25) * grid;
                         apple.y = getRandomInt(0, 25) * grid;
 
+                        context.clearRect(0, 0, canvas.width, canvas.height);
                         row.fill(0);
                         for(let i = 0; i < 25; i++){
                             grids[i] = row.slice();
@@ -192,9 +195,9 @@
                 snake.dx = 0;
             }
         });
-
+        
         document.addEventListener('keypress', function(e) {
-            if(e.which === 32){
+            if(e.which === 32 && snake.state != 1){
                 snake.state = 1;
                 requestAnimationFrame(loop);
             }
