@@ -21,6 +21,7 @@ class Env:
             break
 
     def get_done(self):
+        self.update_data()
         return 1 - self.data['State']
 
     def get_obs(self):
@@ -37,6 +38,8 @@ class Env:
 
     def get_rew(self):
 
+        self.update_data()
+
         if self.get_done():
             return -5
 
@@ -47,10 +50,14 @@ class Env:
         return rew
 
     def reset(self):
+        self.update_data()
         keyboard.press_and_release('space')
         return self.get_obs()
 
     def step(self, action):
+        
+        self.update_data()
+
         if action == 0:
             keyboard.press_and_release('up')
         if action == 1:
