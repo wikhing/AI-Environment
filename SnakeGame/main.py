@@ -234,7 +234,7 @@ def main():
         ep += 1
         total_rew = 0
         obs = env.reset() # obs in numpy
-        time.sleep(0.5)
+        time.sleep(0.3)
 
         while True:
             action, log_prob, value, _ = agent.pred(torch.from_numpy(obs))
