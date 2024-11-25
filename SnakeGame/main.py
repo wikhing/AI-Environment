@@ -7,6 +7,12 @@ from env import Env
 import time
 
 
+
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'                                               
+    
+
+
 class PolicyNet(nn.Module):
     def __init__(self):
         super().__init__()
@@ -128,6 +134,8 @@ class PPO:
         self.policy_optim = torch.optim.Adam(self.policy_net.parameters(), lr=self.learning_rate)
         self.value_optim = torch.optim.Adam(self.value_net.parameters(), lr=self.learning_rate)
         self.loss_fn = nn.MSELoss()
+       
+        
 
 
     def pred(self, obs):
@@ -203,73 +211,70 @@ class PPO:
         self.memory.clear_mem()
         self.policy_net.to('cpu')
         self.value_net.to('cpu')
+    
+    
+    def learn(self):
+        env = Env()
         
+        try :
+            print('loading agent...')
+            self.policy_net.load_state_dict (torch.load("policy.pth"))
+            self.value_net.load_state_dict(torch.load("value.pth"))
+        except Exception as e:
+            print("no model found") 
+
+
+        ep = 0  
+        avg_rew = 0 
+        total_tp = 0 
+        num_of_updates = 0
+
+        print('training starting in...')
+        for i in range(5):
+            print(5 - i)
+            time.sleep(1)
+
+        while True:                                          
+            ep += 1
+            total_rew = 0
+            obs = env.reset() # obs in numpy
+
+            while True:
+                action, log_prob, value, _ = self.pred(torch.from_numpy(obs))
+                new_obs, rew, done = env.step(action.item())
+                # have to store either in pytorch tensor, or python data type format, no numpy
+                # the obs and new_obs is in tensor, example : torch.tensor([1, 2 ,3]), stored in a python array
+                # the tensors are then stacked up together
+                self.memory.store_mem(torch.from_numpy(obs), action.item(), log_prob, rew, torch.from_numpy(new_obs), done, value.item())
+                obs = new_obs
+                total_rew += rew
+
+                if (done):
+                    avg_rew += total_rew
+                    break 
+                
+            if (ep % 10) == 0:
+                total_tp += len(self.memory.rew_traj)
+                print(f"---------------------------------------------")
+                print(f"episode : {ep} | avg reward : {avg_rew/50}")
+                print(f"timesteps : {len(self.memory.rew_traj)}")
+                print(f"total timesteps : {total_tp/1e6}M")
+                print(f"num of updates : {num_of_updates}")
+                print(f"---------------------------------------------\n")
+                avg_rew = 0
+
+
+            if (len(self.memory.rew_traj)) >= 2048:
+                self.train()
+                num_of_updates += 1
+
+                torch.save(self.policy_net.state_dict(), "policy.pth")
+                torch.save(self.value_net.state_dict(), "value.pth")
+
 
                                                                                         
 
+                                                                                            
 
-def main():
-    env = Env()
-    agent = PPO() 
-    
-    try :
-        print('loading agent...')
-        agent.policy_net.load_state_dict (torch.load("policy.pth"))
-        agent.value_net.load_state_dict(torch.load("value.pth"))
-    except Exception as e:
-        print("no model found") 
-
-
-    ep = 0  
-    avg_rew = 0 
-    total_tp = 0 
-    num_of_updates = 0
-
-    print('training starting in...')
-    for i in range(5):
-        print(5 - i)
-        time.sleep(1)
-
-    while True:                                          
-        ep += 1
-        total_rew = 0
-        obs = env.reset() # obs in numpy
-
-        while True:
-            action, log_prob, value, _ = agent.pred(torch.from_numpy(obs))
-            new_obs, rew, done = env.step(action.item())
-            # have to store either in pytorch tensor, or python data type format, no numpy
-            # the obs and new_obs is in tensor, example : torch.tensor([1, 2 ,3]), stored in a python array
-            # the tensors are then stacked up together
-            agent.memory.store_mem(torch.from_numpy(obs), action.item(), log_prob, rew, torch.from_numpy(new_obs), done, value.item())
-            obs = new_obs
-            total_rew += rew
-
-            if (done):
-                avg_rew += total_rew
-                break 
-            
-        if (ep % 10) == 0:
-            total_tp += len(agent.memory.rew_traj)
-            print(f"---------------------------------------------")
-            print(f"episode : {ep} | avg reward : {avg_rew/50}")
-            print(f"timesteps : {len(agent.memory.rew_traj)}")
-            print(f"total timesteps : {total_tp/1e6}M")
-            print(f"num of updates : {num_of_updates}")
-            print(f"---------------------------------------------\n")
-            avg_rew = 0
-
-
-        if (len(agent.memory.rew_traj)) >= 2048:
-            agent.train()
-            num_of_updates += 1
-
-            torch.save(agent.policy_net.state_dict(), "policy.pth")
-            torch.save(agent.value_net.state_dict(), "value.pth")
-
-
-       
-device = 'cuda' if torch.cuda.is_available() else 'cpu'                                               
-
-if __name__ == "__main__":
-    main()                                                                                                  
+agent = PPO()
+agent.learn()
