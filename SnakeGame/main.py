@@ -11,9 +11,9 @@ class PolicyNet(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.fc1 = nn.Linear(25 * 25, 256)
-        self.fc2 = nn.Linear(256, 256)
-        self.fc3 = nn.Linear(256, 4)
+        self.fc1 = nn.Linear(17, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, 5)
 
        
     def forward(self, x):
@@ -36,9 +36,9 @@ class ValueNet(nn.Module):
     def __init__(self):
         super().__init__()                   
 
-        self.fc1 = nn.Linear(25 * 25, 256)
-        self.fc2 = nn.Linear(256, 256)
-        self.fc3 = nn.Linear(256, 1)
+        self.fc1 = nn.Linear(17, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, 1)
  
 
     def forward(self, x):
@@ -155,7 +155,7 @@ class PPO:
                 advantage += delta * ((self.gamma * self.gae_lambda) ** (j - i))
 
                 if self.memory.done_traj[j] == 1:
-                     break
+                    break
 
             self.memory.adv_traj.append(advantage)
 
@@ -234,12 +234,10 @@ def main():
         ep += 1
         total_rew = 0
         obs = env.reset() # obs in numpy
-        time.sleep(0.3)
 
         while True:
             action, log_prob, value, _ = agent.pred(torch.from_numpy(obs))
             new_obs, rew, done = env.step(action.item())
-            time.sleep(0.1)
             # have to store either in pytorch tensor, or python data type format, no numpy
             # the obs and new_obs is in tensor, example : torch.tensor([1, 2 ,3]), stored in a python array
             # the tensors are then stacked up together
