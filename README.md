@@ -31,6 +31,10 @@ python -m venv venv (You should see a venv folder)
 
 venv\Scripts\activate (To activate the virtual environment)
 
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118  # if this doesn't work
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118  
+# if this one doesn't work, try this one instead
+
+pip3 install torch torchvision torchaudio  
+
 
 ```
