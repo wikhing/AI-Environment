@@ -1,3 +1,3 @@
-# JS_AI-Environment
+# AI-Environment
 
-Project of JS X AI in little games.
+Project of little games for AI-Environment.
